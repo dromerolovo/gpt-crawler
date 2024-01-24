@@ -14,5 +14,7 @@ storage
 
 # any output from the crawler
 *.json
+!outputAnchor-1.json
+!outputNoAnchor-1.json
 .env
 pnpm-lock.yaml

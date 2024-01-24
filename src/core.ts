@@ -10,12 +10,14 @@ import { PathLike } from "fs";
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
 
-export function getPageHtml(page: Page, selector = "body") {
-  return page.evaluate((selector) => {
+export function getPageHtml(page: Page, selector = "body", config : Config) {
+  var avoidAnchorContent : boolean = config.avoidAnchorContent!;
+
+  return page.evaluate(([selector, avoidAnchorContent]) => {
     // Check if the selector is an XPath
-    if (selector.startsWith("/")) {
+    if ((selector as string).startsWith("/")) {
       const elements = document.evaluate(
-        selector,
+        selector as string,
         document,
         null,
         XPathResult.ANY_TYPE,
@@ -25,10 +27,22 @@ export function getPageHtml(page: Page, selector = "body") {
       return result ? result.textContent || "" : "";
     } else {
       // Handle as a CSS selector
-      const el = document.querySelector(selector) as HTMLElement | null;
+      const el = document.querySelector(selector as string) as HTMLElement | null;
+
+      var removeAnchorElements = function(element : any) {
+        if(element.nodeName == "A") {
+          element.parentNode?.removeChild(element);
+        } else {
+          Array.from(element.childNodes).forEach(removeAnchorElements)
+        }
+      }
+      if((avoidAnchorContent as boolean) == true) {
+
+        removeAnchorElements(el);
+      }
       return el?.innerText || "";
     }
-  }, selector);
+  }, [selector, avoidAnchorContent]);
 }
 
 export async function waitForXPath(page: Page, xpath: string, timeout: number) {
@@ -78,15 +92,6 @@ export async function crawl(config: Config) {
           }
         }
 
-        const html = await getPageHtml(page, config.selector);
-
-        // Save results as JSON to ./storage/datasets/default
-        await pushData({ title, url: request.loadedUrl, html });
-
-        if (config.onVisitPage) {
-          await config.onVisitPage({ page, pushData });
-        }
-
         // Extract links from the current page
         // and add them to the crawling queue.
         await enqueueLinks({
@@ -97,6 +102,15 @@ export async function crawl(config: Config) {
               ? [config.exclude]
               : config.exclude ?? [],
         });
+
+        const html = await getPageHtml(page, config.selector, config);
+
+        // Save results as JSON to ./storage/datasets/default
+        await pushData({ title, url: request.loadedUrl, html });
+
+        if (config.onVisitPage) {
+          await config.onVisitPage({ page, pushData });
+        }
       },
       // Comment this option to scrape the full website.
       maxRequestsPerCrawl: config.maxPagesToCrawl,

@@ -68,6 +68,7 @@ export const configSchema = z.object({
     )
     .returns(z.promise(z.void()))
     .optional(),
+  avoidAnchorContent: z.boolean().default(false).optional(),
   /** Optional timeout for waiting for a selector to appear */
   waitForSelectorTimeout: z.number().int().nonnegative().optional(),
   /** Optional resources to exclude
