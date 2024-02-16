@@ -10,39 +10,43 @@ import { PathLike } from "fs";
 let pageCounter = 0;
 let crawler: PlaywrightCrawler;
 
-export function getPageHtml(page: Page, selector = "body", config : Config) {
-  var avoidAnchorContent : boolean = config.avoidAnchorContent!;
+export function getPageHtml(page: Page, selector = "body", config: Config) {
+  var avoidAnchorContent: boolean = config.avoidAnchorContent!;
 
-  return page.evaluate(([selector, avoidAnchorContent]) => {
-    // Check if the selector is an XPath
-    if ((selector as string).startsWith("/")) {
-      const elements = document.evaluate(
-        selector as string,
-        document,
-        null,
-        XPathResult.ANY_TYPE,
-        null,
-      );
-      let result = elements.iterateNext();
-      return result ? result.textContent || "" : "";
-    } else {
-      // Handle as a CSS selector
-      const el = document.querySelector(selector as string) as HTMLElement | null;
+  return page.evaluate(
+    ([selector, avoidAnchorContent]) => {
+      // Check if the selector is an XPath
+      if ((selector as string).startsWith("/")) {
+        const elements = document.evaluate(
+          selector as string,
+          document,
+          null,
+          XPathResult.ANY_TYPE,
+          null,
+        );
+        let result = elements.iterateNext();
+        return result ? result.textContent || "" : "";
+      } else {
+        // Handle as a CSS selector
+        const el = document.querySelector(
+          selector as string,
+        ) as HTMLElement | null;
 
-      var removeAnchorElements = function(element : any) {
-        if(element.nodeName == "A") {
-          element.parentNode?.removeChild(element);
-        } else {
-          Array.from(element.childNodes).forEach(removeAnchorElements)
+        var removeAnchorElements = function (element: any) {
+          if (element.nodeName == "A") {
+            element.parentNode?.removeChild(element);
+          } else {
+            Array.from(element.childNodes).forEach(removeAnchorElements);
+          }
+        };
+        if ((avoidAnchorContent as boolean) == true) {
+          removeAnchorElements(el);
         }
+        return el?.innerText || "";
       }
-      if((avoidAnchorContent as boolean) == true) {
-
-        removeAnchorElements(el);
-      }
-      return el?.innerText || "";
-    }
-  }, [selector, avoidAnchorContent]);
+    },
+    [selector, avoidAnchorContent],
+  );
 }
 
 export async function waitForXPath(page: Page, xpath: string, timeout: number) {
