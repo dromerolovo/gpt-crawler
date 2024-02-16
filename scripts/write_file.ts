@@ -29,13 +29,20 @@ if (outputArgument != undefined) {
 
 const documentContent = fs.readFileSync(argument, "utf-8");
 var json: any[] = JSON.parse(documentContent);
-fs.writeFileSync(outputPath, '');
+fs.writeFileSync(outputPath, "");
 json.forEach((crawledPage) => {
-    let title = crawledPage["title"] as string
-    let content = crawledPage["html"]
-    if(title.startsWith("404") || title.startsWith("Privacy") || title.startsWith("Terms")) {
-    } else {
-      fs.appendFileSync(outputPath, title);
-      fs.appendFileSync(outputPath, " "+(content as string).trim() + "\n\n\n\n")
-    }
-})
+  let title = crawledPage["title"] as string;
+  let content = crawledPage["html"];
+  if (
+    title.startsWith("404") ||
+    title.startsWith("Privacy") ||
+    title.startsWith("Terms")
+  ) {
+  } else {
+    fs.appendFileSync(outputPath, title);
+    fs.appendFileSync(
+      outputPath,
+      " " + (content as string).trim() + "\n\n\n\n",
+    );
+  }
+});

@@ -8,7 +8,7 @@ import emojiRegex from "emoji-regex";
 var filePath = process.argv.slice(1);
 var pathArgument = filePath[1];
 var outputArgument = filePath[2];
-var fileTypeOutputArgument = filePath[3]
+var fileTypeOutputArgument = filePath[3];
 var argument: string;
 var outputPath: string;
 if (pathArgument.startsWith("--path")) {
@@ -43,43 +43,15 @@ fs.writeFile(outputPath, jsonString, (err) => {
   }
 });
 
-function dataCleaningPipeline(json: string) : string {
+function dataCleaningPipeline(json: string): string {
   var output = json
-  .replace(/(Source:[\S\s]+?\.)/gm, '')
-  .replace(emojiRegex(), '')
-  .replace(/About\n{3}[\S\s]+?reserved./gm, '')
-  .replace(/\u00A0/g, "")
-  .replace(/\u0020{2,}/g, " ")
-  .replace(/(\n{1,4}\u0020)/g, "\n")
+    .replace(/(Source:[\S\s]+?\.)/gm, "")
+    .replace(emojiRegex(), "")
+    .replace(/About\n{3}[\S\s]+?reserved./gm, "")
+    .replace(/\u00A0/g, "")
+    .replace(/\u0020{2,}/g, " ")
+    .replace(/(\n{1,4}\u0020)/g, "\n");
   // .replace(/\n{1,4}/g, "\n")
 
-  return output
-}
-
-function removeExcessBreaksOfLine(json: string): string {
-  var exampleCleaned = json.replace(/(\n){2,}/g, "\n\n");
-  return exampleCleaned;
-}
-
-function removeIcons(json: string) : string {
-  const regex = emojiRegex();
-  var jsonWithoutIcons = json.replace(regex, "");
-  return jsonWithoutIcons;
-}
-
-function removeNoBreakSpace(json: string) : string {
-  var output = json.replace(/\u00A0/g, "")
   return output;
-}
-
-function removeSpacesAndBlankCharacters(json: string) : string {
-  var output = json.replace(/\u0020{2,}/g, " ")
-  return output;
-}
-
-function removeIrrelevantHeaders(json: string) : void {
-  var matches = json.matchAll(/(.{1,20}\\n)/gm);
-  for(var val of matches) {
-    console.log(val)
-  }
 }
