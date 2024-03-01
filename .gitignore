@@ -19,3 +19,5 @@ storage
 .env
 pnpm-lock.yaml
 output_cleaned.txt
+manual_clean.txt
+v2.txt

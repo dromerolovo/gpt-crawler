@@ -33,16 +33,39 @@ fs.writeFileSync(outputPath, "");
 json.forEach((crawledPage) => {
   let title = crawledPage["title"] as string;
   let content = crawledPage["html"];
+  let limit = 470;
+  var words = (content as string).split(" ");
+  let tokens = words.length
+
+  var revolutions = Math.floor(tokens / limit);
+  var remainder = tokens % limit;
+
   if (
     title.startsWith("404") ||
     title.startsWith("Privacy") ||
     title.startsWith("Terms")
   ) {
   } else {
-    fs.appendFileSync(outputPath, title);
-    fs.appendFileSync(
-      outputPath,
-      " " + (content as string).trim() + "\n\n\n\n",
-    );
+    if(words.length <= limit) {
+      fs.appendFileSync(outputPath, title);
+      fs.appendFileSync(
+        outputPath,
+        " " + (content as string).trim() + "\n\n",
+      );
+    } else {
+      fs.appendFileSync(outputPath, title);
+      for(let i = 0; i < revolutions; i++) {
+        let chunk = words.slice(limit * i, limit * (i+1)).join(" ")
+        fs.appendFileSync(
+          outputPath,
+          " " + (chunk as string).trim() + "\n\n",
+        );
+      }
+      let reminderChunk = words.slice(tokens - remainder, tokens).join(" ")
+      fs.appendFileSync(
+        outputPath,
+        " " + (reminderChunk as string).trim() + "\n\n",
+      );
+    }
   }
 });

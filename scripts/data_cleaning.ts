@@ -50,8 +50,7 @@ function dataCleaningPipeline(json: string): string {
     .replace(/About\n{3}[\S\s]+?reserved./gm, "")
     .replace(/\u00A0/g, "")
     .replace(/\u0020{2,}/g, " ")
-    .replace(/(\n{1,4}\u0020)/g, "\n");
-  // .replace(/\n{1,4}/g, "\n")
-
+    .replace(/(\n{1,4}\u0020)/g, "\n")
+    .replace(/\n{1,4}/g, "\n")
   return output;
 }
